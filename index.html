@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pemeriksa Scam</title>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,7 +17,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            flex-direction: column;
         }
 
         .container {
@@ -21,9 +26,10 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         h1 {
@@ -80,32 +86,31 @@
             font-weight: bold;
         }
 
-        .report-button {
-            margin-top: 20px;
-        }
-
-        .report-button a {
-            text-decoration: none;
-            color: #fff;
-        }
-
-        .loading-spinner {
-            display: none;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
             margin: 20px auto;
+            display: none;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .progress-bar-inner {
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            border-radius: 10px;
+            animation: progress 2s infinite;
         }
 
-        .tips {
+        @keyframes progress {
+            0% { width: 0; }
+            50% { width: 100%; }
+            100% { width: 0; }
+        }
+
+        .tips, .recent-scams, .scam-stats, .faq {
             margin-top: 20px;
             text-align: left;
             background-color: #f9f9f9;
@@ -114,65 +119,112 @@
             border: 1px solid #ddd;
         }
 
-        .tips h3 {
-            margin-top: 0;
-            color: #333;
-        }
-
-        .tips ul {
-            padding-left: 20px;
-        }
-
-        .tips ul li {
+        .faq details {
             margin-bottom: 10px;
         }
 
-        .warning-note {
-            color: #ffc107;
+        .faq summary {
             font-weight: bold;
+            cursor: pointer;
+        }
+
+        .faq p {
+            margin: 5px 0 0 0;
+        }
+
+        .icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Pemeriksa Scam</h1>
+        <h1><i class="fas fa-shield-alt icon"></i>Pemeriksa Scam</h1>
         <p>Semak sama ada maklumat yang anda terima termasuk dalam senarai scam.</p>
         
         <form id="checkScamForm">
             <label for="scamInput">Masukkan nombor telefon, emel, atau laman web:</label>
             <input type="text" id="scamInput" name="scamInput" required>
-            <button type="submit">Semak</button>
+            <button type="submit"><i class="fas fa-search icon"></i>Semak</button>
         </form>
 
-        <!-- Bar masa tengah semak (loading spinner) -->
-        <div class="loading-spinner" id="loadingSpinner"></div>
+        <!-- Bar loading animasi -->
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-bar-inner"></div>
+        </div>
 
         <!-- Hasil semakan -->
         <div id="result"></div>
 
-        <!-- Notifikasi berhati-hati -->
-        <div id="cautionNote" class="warning-note" style="display: none;">
-            🛑 Walaupun maklumat ini selamat, anda dinasihatkan untuk sentiasa berhati-hati dan tidak berkongsi maklumat peribadi.
+        <!-- Butang Kongsi Hasil -->
+        <div id="shareResult" style="display: none;">
+            <button onclick="shareOnWhatsApp()"><i class="fab fa-whatsapp icon"></i>Kongsi melalui WhatsApp</button>
         </div>
 
         <!-- Butang Laporkan Scam -->
         <div class="report-button">
             <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSdrnWwoSuqSlHDzwSMNLy9AhKTc1ocRyjZoUYNYjXwHUguzvg/viewform', '_blank')">
-                Laporkan Scam
+                <i class="fas fa-flag icon"></i>Laporkan Scam
             </button>
         </div>
 
-        <!-- Tips Keselamatan -->
-        <div class="tips">
-            <h3>Tips Keselamatan:</h3>
-            <ul>
-                <li>Jangan berkongsi maklumat peribadi seperti kata laluan atau nombor kad kredit.</li>
-                <li>Pastikan laman web yang anda lawati menggunakan HTTPS.</li>
-                <li>Jangan klik pautan mencurigakan dalam emel atau mesej.</li>
-                <li>Sentiasa semak sumber maklumat sebelum mempercayainya.</li>
-                <li>Gunakan kata laluan yang kuat dan berbeza untuk setiap akaun.</li>
-            </ul>
+        <!-- Statistik Scam -->
+        <div class="scam-stats">
+            <h3><i class="fas fa-chart-bar icon"></i>Statistik Scam</h3>
+            <p>Jumlah laporan scam: <span id="totalScams">0</span></p>
+        </div>
+
+        <!-- Senarai Scam Terkini -->
+        <div class="recent-scams">
+            <h3><i class="fas fa-list icon"></i>Senarai Scam Terkini</h3>
+            <table id="scamTable">
+                <thead>
+                    <tr>
+                        <th>Nombor Akaun / Telefon / Link</th>
+                        <th>Maklumat Scam</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data akan dimuat di sini -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq">
+            <h3><i class="fas fa-question-circle icon"></i>Soalan Lazim (FAQ)</h3>
+            <details>
+                <summary>Apakah itu scam?</summary>
+                <p>Scam adalah penipuan yang dilakukan untuk mendapatkan wang atau maklumat peribadi secara tidak sah.</p>
+            </details>
+            <details>
+                <summary>Bagaimana saya boleh melaporkan scam?</summary>
+                <p>Anda boleh melaporkan scam melalui butang "Laporkan Scam" di atas.</p>
+            </details>
+            <details>
+                <summary>Adakah ini laman web rasmi?</summary>
+                <p>Tidak, ini bukan laman web rasmi mana-mana agensi. Kami hanya membantu untuk menyemak dan merekodkan maklumat scam.</p>
+            </details>
         </div>
     </div>
 
@@ -182,21 +234,24 @@
             event.preventDefault();
             const input = document.getElementById('scamInput').value.trim().toLowerCase();
             const resultDiv = document.getElementById('result');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const cautionNote = document.getElementById('cautionNote');
+            const progressBar = document.getElementById('progressBar');
+            const shareResult = document.getElementById('shareResult');
 
             if (!input) {
-                resultDiv.innerHTML = `<p class="error">Sila masukkan maklumat untuk disemak.</p>`;
-                cautionNote.style.display = 'none';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ralat',
+                    text: 'Sila masukkan maklumat untuk disemak.',
+                });
                 return;
             }
 
-            // Tunjukkan bar masa tengah semak
-            loadingSpinner.style.display = 'block';
-            resultDiv.innerHTML = ''; // Kosongkan hasil sebelumnya
-            cautionNote.style.display = 'none'; // Sembunyikan notifikasi berhati-hati
+            // Tunjukkan bar loading
+            progressBar.style.display = 'block';
+            resultDiv.innerHTML = '';
+            shareResult.style.display = 'none';
 
-            // URL Google Sheets yang anda berikan
+            // URL Google Sheets
             const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTj36daTPQfCsH2FLEAByM15C09WmtAD4NlFRp7Htg2bt0eYWFafzqiup9d1cni4Oedm5-AwPEFG77I/pub?output=csv';
 
             fetch(sheetUrl)
@@ -212,25 +267,86 @@
                         }
                     });
 
-                    // Sembunyikan bar masa tengah semak
-                    loadingSpinner.style.display = 'none';
+                    // Sembunyikan bar loading
+                    progressBar.style.display = 'none';
 
                     if (isScam) {
-                        resultDiv.innerHTML = `<p class="scam-warning">⚠️ <strong>Amaran:</strong> "${input}" Terdapat Laporan scam!</p>`;
-                        cautionNote.style.display = 'none';
+                        resultDiv.innerHTML = `<p class="scam-warning"><i class="fas fa-exclamation-triangle icon"></i>⚠️ <strong>Amaran:</strong> "${input}" mungkin scam!</p>`;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Awas!',
+                            text: `"${input}" mungkin scam!`,
+                        });
                     } else {
-                        resultDiv.innerHTML = `<p class="safe">✅ "${input}" selamat.</p>`;
-                        cautionNote.style.display = 'block'; // Tunjukkan notifikasi berhati-hati
+                        resultDiv.innerHTML = `<p class="safe"><i class="fas fa-check-circle icon"></i>✅ "${input}" selamat.</p>`;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Selamat!',
+                            text: `"${input}" selamat.`,
+                        });
+                        shareResult.style.display = 'block';
                     }
                 })
                 .catch(error => {
-                    // Sembunyikan bar masa tengah semak
-                    loadingSpinner.style.display = 'none';
+                    progressBar.style.display = 'none';
                     resultDiv.innerHTML = `<p class="error">❌ Ralat berlaku semasa menyemak data.</p>`;
-                    cautionNote.style.display = 'none';
                     console.error('Ralat:', error);
                 });
         });
+
+        // Fungsi untuk memuat senarai scam terkini
+        function loadRecentScams() {
+            const scamTableBody = document.querySelector('#scamTable tbody');
+            const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTj36daTPQfCsH2FLEAByM15C09WmtAD4NlFRp7Htg2bt0eYWFafzqiup9d1cni4Oedm5-AwPEFG77I/pub?output=csv';
+
+            fetch(sheetUrl)
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.split('\n');
+                    scamTableBody.innerHTML = rows.slice(1, 6).map(row => {
+                        const columns = row.split(',');
+                        return `
+                            <tr>
+                                <td>${columns[1]}</td>
+                                <td>${columns[2]}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                })
+                .catch(error => {
+                    scamTableBody.innerHTML = `<tr><td colspan="2">Gagal memuat senarai scam.</td></tr>`;
+                    console.error('Ralat:', error);
+                });
+        }
+
+        // Fungsi untuk memuat statistik scam
+        function loadScamStats() {
+            const totalScams = document.getElementById('totalScams');
+            const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTj36daTPQfCsH2FLEAByM15C09WmtAD4NlFRp7Htg2bt0eYWFafzqiup9d1cni4Oedm5-AwPEFG77I/pub?output=csv';
+
+            fetch(sheetUrl)
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.split('\n');
+                    totalScams.textContent = rows.length - 1; // Tolak header
+                })
+                .catch(error => {
+                    totalScams.textContent = 'Gagal memuat statistik.';
+                    console.error('Ralat:', error);
+                });
+        }
+
+        // Fungsi untuk berkongsi hasil melalui WhatsApp
+        function shareOnWhatsApp() {
+            const input = document.getElementById('scamInput').value;
+            const message = `Saya telah menyemak "${input}" menggunakan Pemeriksa Scam.`;
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        // Panggil fungsi ketika laman dimuat
+        loadRecentScams();
+        loadScamStats();
     </script>
 </body>
 </html>
