@@ -3,141 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semak Akaun Scam</title>
+    <title>Pemeriksa Scam</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
             background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
+
         .container {
-            background: white;
+            background-color: #fff;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            margin: auto;
-        }
-        input, button {
+            max-width: 600px;
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
+            text-align: center;
         }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
+
+        h1 {
+            color: #333;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        form {
+            margin-bottom: 20px;
         }
-        #result, #reportResult {
-            margin-top: 20px;
+
+        label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: bold;
         }
-        .progress {
-            width: 100%;
-            background-color: #ddd;
-            border-radius: 5px;
-            margin-top: 10px;
-            display: none;
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
-        .progress-bar {
-            width: 0%;
-            height: 10px;
-            background-color: #007bff;
-            border-radius: 5px;
-            transition: width 1s ease;
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .scam-warning {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .safe {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .report-button {
+            margin-top: 20px;
+        }
+
+        .report-button a {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .loading-spinner {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tips {
+            margin-top: 20px;
+            text-align: left;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .tips h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .tips ul {
+            padding-left: 20px;
+        }
+
+        .tips ul li {
+            margin-bottom: 10px;
+        }
+
+        .warning-note {
+            color: #ffc107;
+            font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Semak Akaun Scam</h2>
-        <input type="text" id="searchInput" placeholder="Masukkan nombor akaun atau telefon">
-        <button onclick="checkScam()">Semak</button>
-        <div class="progress" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>
+        <h1>Pemeriksa Scam</h1>
+        <p>Semak sama ada maklumat yang anda terima termasuk dalam senarai scam.</p>
+        
+        <form id="checkScamForm">
+            <label for="scamInput">Masukkan nombor telefon, emel, atau laman web:</label>
+            <input type="text" id="scamInput" name="scamInput" required>
+            <button type="submit">Semak</button>
+        </form>
+
+        <!-- Bar masa tengah semak (loading spinner) -->
+        <div class="loading-spinner" id="loadingSpinner"></div>
+
+        <!-- Hasil semakan -->
         <div id="result"></div>
-    </div>
-    
-    <div class="container">
-        <h3>Lapor Akaun Scam</h3>
-        <input type="text" id="reportNumber" placeholder="Nombor akaun / telefon">
-        <input type="text" id="reportDetails" placeholder="Maklumat scam">
-        <button onclick="reportScam()">Hantar Laporan</button>
-        <div id="reportResult"></div>
+
+        <!-- Notifikasi berhati-hati -->
+        <div id="cautionNote" class="warning-note" style="display: none;">
+            🛑 Walaupun maklumat ini selamat, anda dinasihatkan untuk sentiasa berhati-hati dan tidak berkongsi maklumat peribadi.
+        </div>
+
+        <!-- Butang Laporkan Scam -->
+        <div class="report-button">
+            <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSdrnWwoSuqSlHDzwSMNLy9AhKTc1ocRyjZoUYNYjXwHUguzvg/viewform', '_blank')">
+                Laporkan Scam
+            </button>
+        </div>
+
+        <!-- Tips Keselamatan -->
+        <div class="tips">
+            <h3>Tips Keselamatan:</h3>
+            <ul>
+                <li>Jangan berkongsi maklumat peribadi seperti kata laluan atau nombor kad kredit.</li>
+                <li>Pastikan laman web yang anda lawati menggunakan HTTPS.</li>
+                <li>Jangan klik pautan mencurigakan dalam emel atau mesej.</li>
+                <li>Sentiasa semak sumber maklumat sebelum mempercayainya.</li>
+                <li>Gunakan kata laluan yang kuat dan berbeza untuk setiap akaun.</li>
+            </ul>
+        </div>
     </div>
 
     <script>
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwPhr-kSJ-2lt8SOgsspcJFsmdjTMSFJo6Cis2nBGdAjEtaMXsgcb_U7gD-yBbGjO3p/exec";
-        
-        async function checkScam() {
-            let input = document.getElementById("searchInput").value;
-            let resultDiv = document.getElementById("result");
-            let progressBarContainer = document.getElementById("progressBarContainer");
-            let progressBar = document.getElementById("progressBar");
-            
+        // Fungsi untuk memeriksa scam
+        document.getElementById('checkScamForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const input = document.getElementById('scamInput').value.trim().toLowerCase();
+            const resultDiv = document.getElementById('result');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const cautionNote = document.getElementById('cautionNote');
+
             if (!input) {
-                alert("Sila masukkan nombor akaun atau telefon");
+                resultDiv.innerHTML = `<p class="error">Sila masukkan maklumat untuk disemak.</p>`;
+                cautionNote.style.display = 'none';
                 return;
             }
-            
-            progressBarContainer.style.display = "block";
-            progressBar.style.width = "0%";
-            setTimeout(() => progressBar.style.width = "100%", 100);
-            
-            try {
-                let response = await fetch(`${SHEET_URL}?query=${input}`);
-                let data = await response.json();
-                
-                if (data.found) {
-                    alert("Akaun ini telah dilaporkan sebagai scam! Maklumat: " + data.details);
-                    resultDiv.innerHTML = `<span style='color:red;'>Akaun ini telah dilaporkan sebagai scam!</span><br>Maklumat: ${data.details}`;
-                } else {
-                    resultDiv.innerHTML = "Akaun ini tidak tersenarai sebagai scam.";
-                }
-            } catch (error) {
-                resultDiv.innerHTML = "Ralat dalam mengambil data. Sila cuba lagi.";
-            }
-            
-            setTimeout(() => progressBarContainer.style.display = "none", 1000);
-        }
-        
-        async function reportScam() {
-            let number = document.getElementById("reportNumber").value;
-            let details = document.getElementById("reportDetails").value;
-            let reportResultDiv = document.getElementById("reportResult");
-            
-            if (!number || !details) {
-                alert("Sila masukkan semua maklumat.");
-                return;
-            }
-            
-            try {
-                let response = await fetch(SHEET_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ number, details })
+
+            // Tunjukkan bar masa tengah semak
+            loadingSpinner.style.display = 'block';
+            resultDiv.innerHTML = ''; // Kosongkan hasil sebelumnya
+            cautionNote.style.display = 'none'; // Sembunyikan notifikasi berhati-hati
+
+            // URL Google Sheets yang anda berikan
+            const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTj36daTPQfCsH2FLEAByM15C09WmtAD4NlFRp7Htg2bt0eYWFafzqiup9d1cni4Oedm5-AwPEFG77I/pub?output=csv';
+
+            fetch(sheetUrl)
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.split('\n');
+                    let isScam = false;
+
+                    rows.forEach(row => {
+                        const columns = row.split(',');
+                        if (columns.some(col => col.toLowerCase().includes(input))) {
+                            isScam = true;
+                        }
+                    });
+
+                    // Sembunyikan bar masa tengah semak
+                    loadingSpinner.style.display = 'none';
+
+                    if (isScam) {
+                        resultDiv.innerHTML = `<p class="scam-warning">⚠️ <strong>Amaran:</strong> "${input}" terindikasi scam!</p>`;
+                        cautionNote.style.display = 'none';
+                    } else {
+                        resultDiv.innerHTML = `<p class="safe">✅ "${input}" selamat.</p>`;
+                        cautionNote.style.display = 'block'; // Tunjukkan notifikasi berhati-hati
+                    }
+                })
+                .catch(error => {
+                    // Sembunyikan bar masa tengah semak
+                    loadingSpinner.style.display = 'none';
+                    resultDiv.innerHTML = `<p class="error">❌ Ralat berlaku semasa menyemak data.</p>`;
+                    cautionNote.style.display = 'none';
+                    console.error('Ralat:', error);
                 });
-                let data = await response.json();
-                
-                if (data.success) {
-                    alert("Laporan telah dihantar!");
-                    reportResultDiv.innerHTML = "Laporan telah dihantar!";
-                } else {
-                    alert("Ralat dalam menghantar laporan. Sila cuba lagi.");
-                    reportResultDiv.innerHTML = "Ralat dalam menghantar laporan. Sila cuba lagi.";
-                }
-            } catch (error) {
-                alert("Ralat dalam menghantar laporan. Sila cuba lagi.");
-                reportResultDiv.innerHTML = "Ralat dalam menghantar laporan. Sila cuba lagi.";
-            }
-        }
+        });
     </script>
 </body>
 </html>
