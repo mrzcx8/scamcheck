@@ -40,6 +40,20 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        .progress {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 10px;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
     </style>
 </head>
 <body>
@@ -47,6 +61,7 @@
         <h2>Semak Akaun Scam</h2>
         <input type="text" id="searchInput" placeholder="Masukkan nombor akaun atau telefon">
         <button onclick="checkScam()">Semak</button>
+        <div class="progress" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>
         <div id="result"></div>
     </div>
     
@@ -64,11 +79,17 @@
         async function checkScam() {
             let input = document.getElementById("searchInput").value;
             let resultDiv = document.getElementById("result");
+            let progressBarContainer = document.getElementById("progressBarContainer");
+            let progressBar = document.getElementById("progressBar");
             
             if (!input) {
                 alert("Sila masukkan nombor akaun atau telefon");
                 return;
             }
+            
+            progressBarContainer.style.display = "block";
+            progressBar.style.width = "0%";
+            setTimeout(() => progressBar.style.width = "100%", 100);
             
             try {
                 let response = await fetch(`${SHEET_URL}?query=${input}`);
@@ -83,6 +104,8 @@
             } catch (error) {
                 resultDiv.innerHTML = "Ralat dalam mengambil data. Sila cuba lagi.";
             }
+            
+            setTimeout(() => progressBarContainer.style.display = "none", 1000);
         }
         
         async function reportScam() {
